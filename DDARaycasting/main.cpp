@@ -17,11 +17,6 @@ float CAMERA_ZOOM_DELTA = 1;
 
 // the server simluates the game in descirete time steps called ticks
 
-/*
-RakNet Ogre tutorial
-http://classes.cs.kent.edu/gpg/trac/wiki/cmarshall
-*/
-
 
 // http://stackoverflow.com/questions/4845410/error-lnk2019-unresolved-external-symbol-main-referenced-in-function-tmainc
 #undef main
@@ -799,9 +794,6 @@ long long DDARaycasting::getCurrentTimeMillis()
 
 int main(int argc, char *argv[])
 {
-//	RakNetFunction2();
-//	return 0;
-
 	utl::debug("Game Starting"); 
 	utl::initSDL(utl::SCREEN_WIDTH, utl::SCREEN_HEIGHT, pDisplaySurface);
 	utl::initGLEW();

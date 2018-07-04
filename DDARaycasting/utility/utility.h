@@ -26,16 +26,8 @@
 
 #include <unordered_set>
 
-#include "RakPeerInterface.h"
-#include <RakNetTypes.h>
-#include "MessageIdentifiers.h"
+
 #include <vector>
-#include "BitStream.h"
-#include "RakNetTypes.h"	// Message ID
-#include "StringCompressor.h"
-//#include "RakNet/StringCompressor.h"
-
-
 
 #include <cassert>
 #include <fstream>
@@ -152,21 +144,6 @@ class LinkedList
 
 
 
-// http://gafferongames.com/game-physics/networked-physics/
-enum NetworkGameMessageEnum
-{
-	// server to client
-	SPAWN_INFORMATION = ID_USER_PACKET_ENUM + 1,
-	NEW_CLIENT = ID_USER_PACKET_ENUM + 2,
-	LOBBY_WAIT_END = ID_USER_PACKET_ENUM + 3,
-
-	SERVER_SNAPSHOT = ID_USER_PACKET_ENUM + 4,
-	CLIENT_INPUT = ID_USER_PACKET_ENUM + 5,
-	NONE = ID_USER_PACKET_ENUM + 6,
-	// client to server
-};
-
-
 
 namespace utl
 {
@@ -195,38 +172,16 @@ namespace utl
 	uint32_t createUniqueObjectID();
 
 
-
-	void write(RakNet::BitStream& bs, std::string& s);
-	void read(RakNet::BitStream& bs, std::string& s);
-
-
 	long long getCurrentTime_ms();
 	
 	// http://stackoverflow.com/questions/1861294/how-to-calculate-execution-time-of-a-code-snippet-in-c
 	uint64 GetTimeMs64();
 
-
-
-
-
-
-
-
-
 	void checkGLError();
-
-
-
-
 
 
 	// utl_time.cpp
 	long long getCurrentTimeMillis();
-
-
-
-
-
 };
 
 

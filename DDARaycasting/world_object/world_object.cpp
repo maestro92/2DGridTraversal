@@ -49,15 +49,6 @@ void WorldObject::renderGroup(Pipeline& p, Renderer* r)
 
 
 
-
-void WorldObject::print_uint8_t(uint8_t n)
-{
-	int i;
-	for (i = 8; i >= 0; i--)
-		printf("%d", (n & (1 << i)) >> i);
-	putchar('\n');
-}
-
 bool WorldObject::canRender()
 {
 	return m_model != NULL;
