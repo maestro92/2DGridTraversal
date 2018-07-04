@@ -1,0 +1,176 @@
+#############################################################################################
+####################################### 2018 Feb 10th ########################################
+#############################################################################################
+
+So my approach for this ZillowClone is implement 
+https://stackoverflow.com/questions/16782898/algorithm-for-finding-minimal-cycles-in-a-graph
+
+the paper mentioned in that post is in this link
+https://www.geometrictools.com/Documentation/MinimalCycleBasis.pdf
+
+I had some trouble understanding the part in 4.1, 4.1.1
+
+on Page 10, it posts a code snippet of the function 
+				
+				Vertex GetClockwiseMost
+				{
+
+
+					bool vcurrIsConvex = (Dot(dnext, Perp(dcurr)) <= 0);
+
+				}
+
+
+the Dot-Perp operator was foreign to me, but then I found an article that helped me understood it 
+
+GPU Gems Chapter II.5, it does a very good job explaining how the perp-dot operator works.
+http://cas.xav.free.fr/Graphics%20Gems%204%20-%20Paul%20S.%20Heckbert.pdf
+
+So essentially what the code is doing is that 
+
+The first thing we want to know is if the vector to the adjacent vertex, are CW or CCW
+the Perp operator helps to determine if a vector, relative to another vector is CW or CCW
+
+				bool vcurrIsConvex = (Dot(dnext, Perp(dcurr)) <= 0);
+
+here we see if D_next is CW relative to D_curr
+
+I am not sure if the variableName vcurrIsConvex is relevant cuz we are only looking for the most ClockwiseMost edge
+also this is assuming that the region to the left of the dcurr is the "Inside" region like in figure 7 of page 9. Only based on that assumption
+we can claim that vcurrIsConvex.
+
+moreover, i think it should be vnextIsCCW instead of vcurrIsConvex
+
+so that is some things I understood along the way while reading this paper
+
+
+
+I think with some renaming, we can rewrite the following function
+
+-	another note, we need to cache the vnextIsCCW flag cuz the goal is to get the ClockwiseMost Vertex.
+	the way we compare CCW and CW vertex are gonna have different formulas.
+
+	hence we need the flag to remember that whether our current vertex is CCW or CW.
+	and when we have a new vertex, depending on CCW or CW, we have different formulas
+
+
+-	in the curBest_vnext_IsCCWFlag case, we have two possible conditions that allows us to update the dnext;
+
+	1.			Dot(dcurr, Perp(dadj))
+
+		this is saying, if our current dnext option is a edge that is CCW of dcurr, but the new candidate (dadj) will be clockwise of dcurr 
+		that we will have a clockwise candidate, which beats our current best CCW option
+
+		if that is the case, then curBest_vnext_IsCCWFlag will be false, and we will only be considering clockwise ones
+
+
+	2.			Dot(dnext, Perp(dadj))
+
+		this should be straight forward, if our new candidate is CCW of dnext, then we have a better candidate
+
+
+-	then in the curBest_vnext_IsCCWFlag is false case,
+
+	we only want to consider ones that are clockwise of dcurr and more clockwise then vnext. Hence the 
+
+				if(Dot(dcurr, Perp(dadj)) < 0 and Dot(dnext, Perp(dadj)) < 0)	
+	condition
+
+
+	code is below
+				Vertex GetClockwiseMost
+				{
+					if(vcurr has no adjacent vertices not equal to vprev)
+					{
+						return nil;
+					}
+
+					Vector dcurr = vcur.pos - vprev.pos;
+					Vertex vnext = adj vertex of vcurr not equal to vprev;
+					Vector dnext = vnext.pos = vcur.pos;
+					bool curBest_vnext_IsCCWFlag = (Dot(dnext, Perp(dcurr)) <= 0);
+
+					for(each adj vertex vadj of vcurr) 
+					{
+						Vector dadj = vadj.pos - vcurr.pos;
+						if(curBest_vnext_IsCCWFlag)
+						{
+							if(Dot(dcurr, Perp(dadj)) < 0 or Dot(dnext, Perp(dadj)) < 0)
+							{
+								vnext = vadj;
+								dnext = dadj;
+								curBest_vnext_IsCCWFlag = (Dot(dnext, Perp(dcurr)) <= 0);
+							}
+						}
+						else
+						{
+							if(Dot(dcurr, Perp(dadj)) < 0 and Dot(dnext, Perp(dadj)) < 0)
+							{
+								vnext = vadj;
+								dnext = dadj;
+								curBest_vnext_IsCCWFlag = (Dot(dnext, Perp(dcurr)) <= 0);
+							}
+						}
+					}
+				}
+
+
+
+-	I feel like the API has serious problems, if all we care about is the GettingTheClockWiseMost edge, why the fxxk is there that many CounterClockWise
+logic in here. So I wanted the API to only have Clockwise logic
+
+the newly revised version is below:
+
+
+-	as you can see. all the counterClockwise comparisons are gone. leaving only the clockwise comparisons
+
+				// same as the getClockWiseMost Vertex
+				int Drawing::getClockWiseMostVertexId(Vertex vPrev, Vertex vCur)
+				{
+					if(vCur.neighbors.size == 0)
+					{
+						return -1;
+					}
+
+					int firstValidNeighbor = vCur.getFirstNeighborThatIsNot(vPrev.id);
+					if (firstValidNeighbor == -1)
+					{
+						return -1;
+					}
+
+					glm::vec2 prevDir = vCur.pos - vPrev.pos;
+					Vertex vNext = vertices[firstValidNeighbor];
+					glm::vec2 curBestDir = vNext.pos - vCur.pos;
+
+					bool curBestDirIsClockWiseOfPrevDirFlag = isColinearOrClockWiseFrom(curBestDir, prevDir);
+
+					// first found adjacent vertex that is not prev is chosen as V_next
+					for (int i = 1; i < vCur.neighbors.size(); i++)
+					{
+						int neighborId = vCur.neighbors[i];
+						Vertex vNeighbor = vertices[neighborId];
+						glm::vec2 newDir = vNeighbor.pos - vCur.pos;
+
+						if (curBestDirIsClockWiseOfPrevDirFlag)
+						{
+							if (isClockWiseFrom(newDir, prevDir) && isClockWiseFrom(newDir, curBestDir))
+							{
+								vNext = vNeighbor;
+								curBestDir = newDir;
+								curBestDirIsClockWiseOfPrevDirFlag = isColinearOrClockWiseFrom(curBestDir, prevDir);
+							}
+						}
+						else
+						{
+							if (isClockWiseFrom(newDir, prevDir) || isClockWiseFrom(newDir, curBestDir))
+							{
+								vNext = vNeighbor;
+								curBestDir = newDir;
+								curBestDirIsClockWiseOfPrevDirFlag = isColinearOrClockWiseFrom(curBestDir, prevDir);
+							}
+						}
+					}
+
+					return vNext.id;
+
+				}

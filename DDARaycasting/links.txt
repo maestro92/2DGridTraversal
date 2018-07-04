@@ -1,0 +1,17 @@
+https://medium.com/@netcell/match-3-algorithm-with-regular-expression-1e5c3a07a263
+
+https://dgkanatsios.com/2015/02/25/building-a-match-3-game-in-unity-3/
+https://gamedev.stackexchange.com/questions/2607/match-three-puzzle-games-algorithm
+
+https://github.com/dgkanatsios/matchthreegame
+
+
+
+
+http://androidgamify.blogspot.com/2013/10/match-3-game-algorithm-part-2-how-to.html
+
+if 8x8 board,
+for vertical matches, we only need to find matches
+from 0 to 5th row
+
+

@@ -1,0 +1,30 @@
+[
+	{
+
+		"r": 			"r_fullVertexColor",
+		"vs":			"full_vertex_color.vs",
+		"fs":			"full_vertex_color.fs"
+	},
+
+
+	{
+		"r": 			"r_fullColor",
+		"vs":			"full_color.vs",
+		"fs":			"full_color.fs",
+		"data":
+		{
+			"u_color":		"DP_VEC3"
+		}
+	},
+
+
+	{
+		"r": 			"r_fullTexture",
+		"vs":			"full_texture.vs",
+		"fs":			"full_texture.fs",
+		"data":
+		{
+			"u_texture":	"DP_INT"
+		}
+	}
+]
