@@ -50,12 +50,13 @@ class Map
 		glm::vec2 getCellCenter(glm::vec2 gridCoord);
 
 		float getCellSize();
+		bool IsValidRange(glm::vec2 coord);
 
 	private:
 		float m_cellSize;
 
 		Object serializeCell(Map::Cell gem);
 		Map::Cell deserializeCell(const mObject& obj);
-		bool IsValidRange(glm::vec2 coord);
+
 		vector<vector<Cell>> gridmap;
 };
