@@ -117,7 +117,7 @@ struct Raycaster
 
 	you can think of it that we are not actually traversing. We are just calculating our traversal by calculating the distance to the nextX or nextY.
 	*/
-	void traverse()
+	void traverse_edgeInclusive()
 	{
 		glm::vec2 destGridCoord = glm::vec2(static_cast<int>(end.x), static_cast<int>(end.y));
 
@@ -127,37 +127,164 @@ struct Raycaster
 		bool running = true;
 		while (running == true)
 		{
-			if (rayLengthToSideX < rayLengthToSideY)
+			// edge case, we wil check both for the edgeInclusive function
+			if (rayLengthToSideX == rayLengthToSideY)
 			{
+				glm::vec2 tempCurGrid = curGridCoord;
+				tempCurGrid.x += stepX;
+				traversal.push_back(tempCurGrid);
+				side = NORTH_SOUTH;
+				if (checkTerminateCondition(tempCurGrid, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+
+				tempCurGrid = curGridCoord;
+				tempCurGrid.y += stepY;
+				traversal.push_back(tempCurGrid);
+				side = EAST_WEST;
+				if (checkTerminateCondition(tempCurGrid, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+
 				rayLengthToSideX += dx;
 				curGridCoord.x += stepX;
+				rayLengthToSideY += dy;
+				curGridCoord.y += stepY;
+				traversal.push_back(curGridCoord);
 				side = NORTH_SOUTH;
+				if (checkTerminateCondition(curGridCoord, destGridCoord))
+				{
+					running = false;
+					break;
+				}
 			}
 			else
 			{
-				rayLengthToSideY += dy;
-				curGridCoord.y += stepY;
-				side = EAST_WEST;
-			}
+				if (rayLengthToSideX < rayLengthToSideY)
+				{
+					rayLengthToSideX += dx;
+					curGridCoord.x += stepX;
+					side = NORTH_SOUTH;
+				}
+				else
+				{
+					rayLengthToSideY += dy;
+					curGridCoord.y += stepY;
+					side = EAST_WEST;
+				}
 
-			traversal.push_back(curGridCoord);
-
-			
-			if (map->getCell(curGridCoord) == Map::Cell::Wall)
-			{
-				running = false;
-				break;
-			}
-			
-
-			if (curGridCoord.x == destGridCoord.x && curGridCoord.y == destGridCoord.y)
-			{
-				running = false;
-				break;
+				traversal.push_back(curGridCoord);
+				if (checkTerminateCondition(curGridCoord, destGridCoord))
+				{
+					running = false;
+					break;
+				}
 			}
 		}
-
 	}
+
+
+
+	void traverse_edgeExclusive()
+	{
+		glm::vec2 destGridCoord = glm::vec2(static_cast<int>(end.x), static_cast<int>(end.y));
+
+		traversal.clear();
+		traversal.push_back(curGridCoord);
+
+		cout << curGridCoord.x << " " << curGridCoord.y << endl;
+
+		bool running = true;
+		while (running == true)
+		{
+			// edge case
+			if (rayLengthToSideX == rayLengthToSideY)
+			{
+				cout << curGridCoord.x << " " << curGridCoord.y << endl;
+
+				glm::vec2 tempCurGrid = curGridCoord;
+				tempCurGrid.x += stepX;
+				traversal.push_back(tempCurGrid);
+				if (checkReachedDestination(tempCurGrid, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+
+
+				tempCurGrid = curGridCoord;
+				tempCurGrid.y += stepY;
+				traversal.push_back(tempCurGrid);
+				if (checkReachedDestination(tempCurGrid, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+
+				rayLengthToSideX += dx;
+				curGridCoord.x += stepX;
+				rayLengthToSideY += dy;
+				curGridCoord.y += stepY;
+				traversal.push_back(curGridCoord);
+				side = NORTH_SOUTH;
+				if (checkTerminateCondition(curGridCoord, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+			}
+			else
+			{
+				if (rayLengthToSideX < rayLengthToSideY)
+				{
+					rayLengthToSideX += dx;
+					curGridCoord.x += stepX;
+					side = NORTH_SOUTH;
+				}
+				else
+				{
+					rayLengthToSideY += dy;
+					curGridCoord.y += stepY;
+					side = EAST_WEST;
+				}
+
+				traversal.push_back(curGridCoord);
+				if (checkTerminateCondition(curGridCoord, destGridCoord))
+				{
+					running = false;
+					break;
+				}
+			}
+		}
+	}
+
+	bool checkTerminateCondition(glm::vec2 testGridCoord, glm::vec2 destGridCoord)
+	{
+		return checkWall(testGridCoord) || checkReachedDestination(testGridCoord, destGridCoord);
+	}
+
+	bool checkWall(glm::vec2 testGridCoord)
+	{
+		if (map->getCell(testGridCoord) == Map::Cell::Wall)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	bool checkReachedDestination(glm::vec2 testGridCoord, glm::vec2 destGridCoord)
+	{
+		if (testGridCoord.x == destGridCoord.x && testGridCoord.y == destGridCoord.y)
+		{
+			return true;
+		}
+		return false;
+	}
+
 
 	void printTraversal()
 	{

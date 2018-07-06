@@ -160,9 +160,6 @@ class DDARaycasting
 		glm::vec2 source;
 		glm::vec2 end;
 
-	//	bool isFirstPointInCurrentLine;
-	//	bool startedCurrentLine;
-
 		glm::vec3 screenToUISpace(glm::vec2 screenPoint);
 		glm::vec3 screenToWorldPoint(glm::vec2 screenPoint);
 		glm::vec3 worldToScreen(glm::vec3 pos);

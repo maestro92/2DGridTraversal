@@ -25,10 +25,6 @@ void MapView::init(Map* map)
 			obj.setModel(global.modelMgr->get(ModelEnum::centeredQuad));
 
 			glm::vec2 pos = map->getCellCenter(glm::vec2(x, y));
-			if (x == 0 && y == 0)
-			{
-				cout << pos.x << " " << pos.y << endl;
-			}
 
 			obj.setPosition(glm::vec3(pos.x, pos.y, 0));
 

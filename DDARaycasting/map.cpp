@@ -21,6 +21,15 @@ void Map::init(int w, int h)
 		}
 	}
 
+
+	gridmap[1][0] = Map::Cell::Wall;
+	gridmap[0][1] = Map::Cell::Empty;
+	gridmap[1][1] = Map::Cell::Empty;
+	gridmap[2][2] = Map::Cell::Empty;
+	gridmap[1][2] = Map::Cell::Wall;
+	gridmap[2][1] = Map::Cell::Wall;
+
+
 	if (saveLatest)
 	{
 		save();

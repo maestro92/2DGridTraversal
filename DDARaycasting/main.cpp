@@ -556,7 +556,6 @@ void DDARaycasting::onMouseBtnUp()
 
 	if (inDrawingMode)
 	{
-	//	startedCurrentLine = true;
 		glm::vec2 screenPoint = glm::vec2(tmpx, tmpy);
 
 		glm::vec3 worldPoint = screenToWorldPoint(screenPoint);
@@ -565,7 +564,6 @@ void DDARaycasting::onMouseBtnUp()
 		if (hasDrawnSource == false)
 		{
 			source = tempWorldPoint;
-
 			hasDrawnSource = true;
 			currentRay = constructLine(source, source, 0.05);
 		}
@@ -573,13 +571,14 @@ void DDARaycasting::onMouseBtnUp()
 		{
 			hasDrawnEnd = true;
 			end = tempWorldPoint;
-
 			UpdatingCurrentRayNewEndPoint(end);
 
 			glm::vec2 dir = end - source;
 
 			Raycaster raycaster(source, dir, end, &map);
-			raycaster.traverse();
+//			raycaster.traverse_edgeExclusive();
+			raycaster.traverse_edgeInclusive();
+
 			raycaster.printTraversal();
 
 			glm::vec2 endPoint = raycaster.traversal[raycaster.traversal.size() - 1];
