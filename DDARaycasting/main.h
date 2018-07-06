@@ -196,6 +196,21 @@ class DDARaycasting
 		int curLatencyOption;
 
 
+		void testPosXAxis();
+		void testNegXAxis();
+
+		void testPosYAxis();
+		void testNegYAxis();
+
+		void testDiagnal_00_11();
+		void testDiagnal_11_00();
+		void testDiagnal_10_01();
+		void testDiagnal_01_10();
+
+		void testRegular();
+
+
+
 		vector<WorldObject> lineMarkers;
 
 		long long getCurrentTimeMillis();

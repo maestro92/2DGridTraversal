@@ -564,7 +564,7 @@ void DDARaycasting::onMouseBtnUp()
 		if (hasDrawnSource == false)
 		{
 			source = tempWorldPoint;
-		//	source = glm::vec2(1, 1);
+			source = glm::vec2(5, 5);
 			hasDrawnSource = true;
 			currentRay = constructLine(source, source, 0.05);
 		}
@@ -572,7 +572,7 @@ void DDARaycasting::onMouseBtnUp()
 		{
 			hasDrawnEnd = true;
 			end = tempWorldPoint;
-		//	end = glm::vec2(1, 8);
+			end = glm::vec2(1, 1);
 		//	end = glm::vec2(5, 5);
 
 			UpdatingCurrentRayNewEndPoint(end);
@@ -797,6 +797,8 @@ long long DDARaycasting::getCurrentTimeMillis()
 
 
 
+
+
 int main(int argc, char *argv[])
 {
 	utl::debug("Game Starting"); 
@@ -856,6 +858,61 @@ void DDARaycasting::renderGUI()
 
 	// healthbar and text
 
+
+}
+
+
+
+
+
+
+void DDARaycasting::testPosXAxis()
+{
+
+}
+
+void DDARaycasting::testNegXAxis()
+{
+
+}
+
+void DDARaycasting::testPosYAxis()
+{
+
+}
+
+
+void DDARaycasting::testNegYAxis()
+{
+
+}
+
+void DDARaycasting::testDiagnal_00_11()
+{
+	source = glm::vec2(5, 5);
+	currentRay = constructLine(source, source, 0.05);
+	end = glm::vec2(1, 1);
+}
+
+void DDARaycasting::testDiagnal_11_00()
+{
+
+}
+
+void DDARaycasting::testDiagnal_10_01()
+{
+
+}
+
+void DDARaycasting::testDiagnal_01_10()
+{
+
+}
+
+
+
+void DDARaycasting::testRegular()
+{
 
 }
 

@@ -112,7 +112,6 @@
     <ClCompile Include="model\model.cpp" />
     <ClCompile Include="model\model_manager.cpp" />
     <ClCompile Include="model\raycaster.cpp" />
-    <ClCompile Include="model\Source.cpp" />
     <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\renderer_manager.cpp" />

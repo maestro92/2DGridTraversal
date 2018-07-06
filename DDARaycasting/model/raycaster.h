@@ -23,7 +23,7 @@ struct Raycaster
 		Regular = 0,
 		Edge_Along_X,	// (1,1) -> (5,1)
 		Edge_Along_Y,	// (1,1) -> (1,5)
-		Corner_Diagnol			// (0,0) -> (5,5)
+		Corner_Diagnol			// (0,0) -> (5,5)	
 	};
 	// my understanding is that 
 /*

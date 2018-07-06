@@ -72,6 +72,7 @@ void Raycaster::init(glm::vec2 sourceIn, glm::vec2 dirIn, glm::vec2 endIn)
 
 bool Raycaster::checkForCornerDiagnolCase(glm::vec2 source, glm::vec2 dir)
 {
+	cout << dir.x << " " << dir.y << endl;
 	// (0,0) -> (1,1) or (1,1) -> (0,0) 
 	if (abs(dir.x) == abs(dir.y))
 	{
@@ -83,7 +84,10 @@ bool Raycaster::checkForCornerDiagnolCase(glm::vec2 source, glm::vec2 dir)
 
 		if (flag0 || flag1)
 		{
-			if (source.x == source.y)
+			float localX = source.x - static_cast<int>(source.x);
+			float localY = source.y - static_cast<int>(source.y);
+
+			if (localX == localY)
 			{
 				return true;
 			}
@@ -101,7 +105,14 @@ bool Raycaster::checkForCornerDiagnolCase(glm::vec2 source, glm::vec2 dir)
 
 		if (flag0 || flag1)
 		{
-			if (source.x == 1 - source.y)
+			float localX = source.x - static_cast<int>(source.x);
+			float localY = source.y - static_cast<int>(source.y);
+
+			if (localX == 0 && localY == 0)
+			{
+				return true;
+			}
+			if (localX == 1 - localY)
 			{
 				return true;
 			}
@@ -155,17 +166,37 @@ void Raycaster::traverse()
 	{
 		traverse_Regular();
 	}
-	else if (traversalCase == TraversalCase::Edge_Along_X)
+	else
 	{
-		traverse_EdgeAlongX();
-	}
-	else if (traversalCase == TraversalCase::Edge_Along_Y)
-	{
-		traverse_EdgeAlongY();
-	}
-	else if (traversalCase == TraversalCase::Corner_Diagnol)
-	{
-		traverse_CornerDiagnol();
+		// if you are at a exact corner, move a bit along the direction
+		bool onCorner = source.x == static_cast<int>(source.x) && 
+						source.y == static_cast<int>(source.y);
+
+		if (onCorner)
+		{
+			cout << "on corner" << endl;
+
+			source += 0.1f * dir;
+			curGridCoord = glm::vec2(static_cast<int>(source.x), static_cast<int>(source.y));
+		}
+		else
+		{
+			cout << "not on corner" << endl;
+		}
+
+		if (traversalCase == TraversalCase::Edge_Along_X)
+		{
+			// if you are at a exact corner, move a bit along the direction
+			traverse_EdgeAlongX();
+		}
+		else if (traversalCase == TraversalCase::Edge_Along_Y)
+		{
+			traverse_EdgeAlongY();
+		}
+		else if (traversalCase == TraversalCase::Corner_Diagnol)
+		{
+			traverse_CornerDiagnol();
+		}
 	}
 }
 
@@ -295,10 +326,17 @@ void Raycaster::traverse_EdgeAlongY()
 
 void Raycaster::traverse_CornerDiagnol()
 {
+	cout << curGridCoord.x << " " << curGridCoord.y << endl;
+
 	glm::vec2 destGridCoord = glm::vec2(static_cast<int>(end.x), static_cast<int>(end.y));
 
 	traversal.clear();
 	traversal.push_back(curGridCoord);
+	if (checkTerminateCondition(curGridCoord, destGridCoord))
+	{
+		return;
+	}
+
 
 	bool running = true;
 	while (running == true)

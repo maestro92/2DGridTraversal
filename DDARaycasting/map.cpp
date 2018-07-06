@@ -21,6 +21,10 @@ void Map::init(int w, int h)
 		}
 	}
 
+	gridmap[4][4] = Map::Cell::Empty;
+	gridmap[4][5] = Map::Cell::Wall;
+	gridmap[5][4] = Map::Cell::Wall;
+
 	/*
 	// testing along Edge Y axis
 	gridmap[0][0] = Map::Cell::Wall;
