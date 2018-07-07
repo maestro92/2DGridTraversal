@@ -243,14 +243,11 @@ void Raycaster::traverse_EdgeAlongX()
 	glm::vec2 destGridCoord = glm::vec2(static_cast<int>(end.x), static_cast<int>(end.y));
 
 	traversal.clear();
-	traversal.push_back(curGridCoord);
 
 	bool running = true;
 	while (running == true)
 	{
 		glm::vec2 gc0 = curGridCoord;
-		gc0.x += stepX;
-
 		glm::vec2 gc1 = gc0;
 		gc1.y -= 1;
 
@@ -277,7 +274,7 @@ void Raycaster::traverse_EdgeAlongX()
 			break;
 		}
 
-		curGridCoord = gc0;
+		curGridCoord.x += stepX;
 	}
 }
 
@@ -286,14 +283,11 @@ void Raycaster::traverse_EdgeAlongY()
 	glm::vec2 destGridCoord = glm::vec2(static_cast<int>(end.x), static_cast<int>(end.y));
 
 	traversal.clear();
-	traversal.push_back(curGridCoord);
 
 	bool running = true;
 	while (running == true)
 	{
 		glm::vec2 gc0 = curGridCoord;
-		gc0.y += stepY;
-
 		glm::vec2 gc1 = gc0;
 		gc1.x -= 1;
 
@@ -320,7 +314,7 @@ void Raycaster::traverse_EdgeAlongY()
 			break;
 		}
 
-		curGridCoord = gc0;
+		curGridCoord.y += stepY;
 	}
 }
 

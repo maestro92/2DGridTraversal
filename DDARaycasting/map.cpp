@@ -1,10 +1,14 @@
 #include "map.h"
 
 
-void Map::init(int w, int h)
+Map::Map()
 {
 	m_cellSize = 1;
+}
 
+
+void Map::init(int w, int h)
+{
 	for (int y = 0; y < h; y++)
 	{
 		vector<Cell> row(w);
@@ -21,29 +25,10 @@ void Map::init(int w, int h)
 		}
 	}
 
-	gridmap[4][4] = Map::Cell::Empty;
-	gridmap[4][5] = Map::Cell::Wall;
-	gridmap[5][4] = Map::Cell::Wall;
-
-	/*
-	// testing along Edge Y axis
-	gridmap[0][0] = Map::Cell::Wall;
-	gridmap[1][0] = Map::Cell::Wall;
-	gridmap[2][0] = Map::Cell::Wall;
-	gridmap[3][0] = Map::Cell::Wall;
-	gridmap[4][0] = Map::Cell::Wall;
-
-	gridmap[1][1] = Map::Cell::Empty;
-	gridmap[2][1] = Map::Cell::Empty;
-	gridmap[3][1] = Map::Cell::Empty;
-	gridmap[4][1] = Map::Cell::Empty;
-	*/
-
 	if (saveLatest)
 	{
 		save();
 	}
-
 }
 
 
@@ -194,7 +179,10 @@ void Map::save()
 	myfile.close();
 }
 
-
+void Map::setCell(int x, int y, Map::Cell gem)
+{
+	gridmap[y][x] = gem;
+}
 
 
 void Map::load(char* filename)
@@ -229,22 +217,33 @@ void Map::load(char* filename)
 		}
 	}
 
-	/*
-	cout << "printing newBoard" << endl;
+	gridmap = newMap;
+}
+
+
+
+
+void Map::init(vector<string> worldMap)
+{
+	int w = worldMap[0].size();
+	int h = worldMap.size();
+
+	vector<vector<Cell>> newMap;
 	for (int y = 0; y < h; y++)
 	{
-		string s = "";
+		vector<Cell> row(w);
+		newMap.push_back(row);
+	}
+
+	for (int y = 0; y < h; y++)
+	{
 		for (int x = 0; x < w; x++)
 		{
-			s += utl::intToStr((int)(newBoard[y][x]));
+			newMap[y][x] = worldMap[h - y - 1][x] == '1' ? Map::Cell::Wall : Map::Cell::Empty;
 		}
-		cout << s << endl;
 	}
-	cout << "end newBoard" << endl;
-	*/
-	gridmap = newMap;
 
-//	debug();
+	gridmap = newMap;
 }
 
 

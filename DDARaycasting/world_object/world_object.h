@@ -175,7 +175,7 @@ inline void WorldObject::setModel(Model* model)
 
 inline void WorldObject::resetModel()
 {
-	delete m_model;
+	// we don't delete it here, cuz model manager owns the actual models
 	m_model = NULL;
 }
 

@@ -100,7 +100,7 @@ void DDARaycasting::init()
 
 
 	latencyOptions = { 0, 20, 50, 100, 200 };	// millisecond
-	curLatencyOption = latencyOptions.size()-1;
+	curLatencyOption = latencyOptions.size() - 1;
 	latency = latencyOptions[curLatencyOption] / 2;
 
 	curLatencyOption = 0;
@@ -129,7 +129,7 @@ void DDARaycasting::init()
 
 	m_pipeline.setMatrixMode(PROJECTION_MATRIX);
 	m_pipeline.loadIdentity();
-//	m_pipeline.perspective(90, utl::SCREEN_WIDTH / utl::SCREEN_HEIGHT, utl::Z_NEAR, utl::Z_FAR);
+	//	m_pipeline.perspective(90, utl::SCREEN_WIDTH / utl::SCREEN_HEIGHT, utl::Z_NEAR, utl::Z_FAR);
 
 	m_cameraZoom = 8;
 	m_cameraCenter = glm::vec2(5, 5);
@@ -148,26 +148,43 @@ void DDARaycasting::init()
 
 
 	loadData = false;
+	bool runningTests = false;
 
 	float scale = 100.0;
 	o_worldAxis.setScale(scale);
 	o_worldAxis.setModel(global.modelMgr->get(ModelEnum::xyzAxis));
 
-
-	if (loadData)
+	if (runningTests == true)
 	{
-		map.saveLatest = false;
-		map.load("board1.txt");
-		mapView.init(&map);
-		debugDrawing();
+		curTestCase = -1;
+		
+		testPosXAxis();
+		testNegXAxis();
+		testPosYAxis();
+		testNegYAxis();
+		testDiagnal_00_11();
+		testDiagnal_11_00();	
+		testDiagnal_10_01();
+		testDiagnal_01_10();
+
+		nextTestCase();
 	}
 	else
 	{
-		map.saveLatest = true;
-		map.init(10, 12);
-		mapView.init(&map);
-		debugDrawing();
-
+		if (loadData)
+		{
+			map.saveLatest = false;
+			map.load("board1.txt");
+			mapView.init(&map);
+			debugDrawing();
+		}
+		else
+		{
+			map.saveLatest = true;
+			map.init(10, 12);
+			mapView.init(&map);
+			debugDrawing();
+		}
 	}
 }
 
@@ -439,8 +456,12 @@ void DDARaycasting::update()
 						break;
 
 					case SDLK_y:
-
 						break;
+
+					case SDLK_n:
+						nextTestCase();
+						break;
+
 
 
 					case SDLK_w:
@@ -537,11 +558,16 @@ void DDARaycasting::update()
 	}
 }
 
+
+
 void DDARaycasting::resetDrawingMode()
 {
 	hasDrawnSource = false;
 	hasDrawnEnd = false;
 	mapView.resetHighlight();
+
+	sourcePoint.resetModel();
+	endPoint.resetModel();
 }
 
 
@@ -564,26 +590,25 @@ void DDARaycasting::onMouseBtnUp()
 		if (hasDrawnSource == false)
 		{
 			source = tempWorldPoint;
-			source = glm::vec2(5, 5);
 			hasDrawnSource = true;
 			currentRay = constructLine(source, source, 0.05);
+
+			sourcePoint = constructPoint(source, 0.1);
 		}
 		else
 		{
 			hasDrawnEnd = true;
 			end = tempWorldPoint;
-			end = glm::vec2(1, 1);
-		//	end = glm::vec2(5, 5);
 
 			UpdatingCurrentRayNewEndPoint(end);
+
+
+			endPoint = constructPoint(end, 0.5);
 
 			glm::vec2 dir = end - source;
 
 			Raycaster raycaster(source, dir, end, &map);
-//			raycaster.traverse_edgeExclusive();
-//			raycaster.traverse_edgeInclusive();
 			raycaster.traverse();
-
 
 			raycaster.printTraversal();
 
@@ -593,6 +618,18 @@ void DDARaycasting::onMouseBtnUp()
 			mapView.createMeshForGridCellsHighlight(raycaster.traversal);
 		}
 	}
+}
+
+
+WorldObject DDARaycasting::constructPoint(glm::vec2 p, float width) const
+{
+	WorldObject obj = WorldObject();
+	obj.setModel(global.modelMgr->get(ModelEnum::centeredQuad));
+	obj.setPosition(glm::vec3(p.x, p.y, 0));
+
+	obj.setScale(width);
+
+	return obj;
 }
 
 
@@ -724,23 +761,27 @@ void DDARaycasting::render()
 	o_worldAxis.renderGroup(m_pipeline, p_renderer);
 	p_renderer->disableShader();
 
-
-	if (shouldRenderCurrentRay())
+	p_renderer = &global.rendererMgr->r_fullColor;
+	p_renderer->enableShader();
+	if (currentRay != NULL && currentRay->canRender())
 	{
-		p_renderer = &global.rendererMgr->r_fullColor;
-		p_renderer->enableShader();
 		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_RED);
 		currentRay->renderGroup(m_pipeline, p_renderer);
-
-		/*
-		if (traversalRay != NULL)
-		{
-			p_renderer->setData(R_FULL_COLOR::u_color, COLOR_BLUE);
-			traversalRay->renderGroup(m_pipeline, p_renderer);
-		}
-		*/
-		p_renderer->disableShader();
 	}
+
+	if (sourcePoint.canRender())
+	{
+		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_TEAL);
+		sourcePoint.renderGroup(m_pipeline, p_renderer);
+	}
+
+	if (endPoint.canRender())
+	{
+		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_GREEN);
+		endPoint.renderGroup(m_pipeline, p_renderer);
+	}
+	p_renderer->disableShader();
+
 
 	long long timeNowMillis = getCurrentTimeMillis();
 
@@ -863,53 +904,560 @@ void DDARaycasting::renderGUI()
 
 
 
+void DDARaycasting::nextTestCase()
+{
+	curTestCase++;
+	if (curTestCase < testCases.size())
+	{
+		test(testCases[curTestCase]);
+	}
+
+}
 
 
+void DDARaycasting::test(TestCase testCase)
+{
+	test(testCase.testMap, testCase.start, testCase.end);
+}
+
+
+void DDARaycasting::test(vector<string> testMap, glm::vec2 p0, glm::vec2 p1)
+{
+	map.init(testMap);
+	mapView.init(&map);
+	debugDrawing();
+
+	source = p0;
+	end = p1;
+
+	currentRay = constructLine(source, source, 0.05);
+	UpdatingCurrentRayNewEndPoint(end);
+
+	sourcePoint = constructPoint(source, 0.2);
+	endPoint = constructPoint(end, 0.5);
+
+	glm::vec2 dir = end - source;
+
+	Raycaster raycaster(source, dir, end, &map);
+	raycaster.traverse();
+
+	raycaster.printTraversal();
+
+	glm::vec2 endPoint = raycaster.traversal[raycaster.traversal.size() - 1];
+	traversalRay = constructLine(source, map.getCellCenter(endPoint), 0.05);
+
+	mapView.createMeshForGridCellsHighlight(raycaster.traversal);		
+}
 
 void DDARaycasting::testPosXAxis()
 {
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"001100",
+		"100100",
+		"000000"
+	};
+	TestCase case0(testMap, glm::vec2(0, 2), glm::vec2(5, 2));		
+	testCases.push_back(case0);
 
+	testMap =
+	{
+		"000000",
+		"000000",
+		"101100",
+		"100100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"101000",
+		"101000",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"001100",
+		"000100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000100",
+		"001100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000101",
+		"001001",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000100",
+		"001011",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"001111",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(0, 2), glm::vec2(5, 2));
+	testCases.push_back(case0);
 }
+
+
+
+
+
 
 void DDARaycasting::testNegXAxis()
 {
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"001100",
+		"100100",
+		"000000"
+	};
+	TestCase case0(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
 
+	testMap =
+	{
+		"000000",
+		"000000",
+		"101100",
+		"100100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"101000",
+		"101000",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"001100",
+		"000100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000100",
+		"001100",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000101",
+		"001001",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000010",
+		"001011",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000100",
+		"001011",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"001111",
+		"000000"
+	};
+	case0 = TestCase(testMap, glm::vec2(5, 2), glm::vec2(2, 2));
+	testCases.push_back(case0);
 }
+
+
 
 void DDARaycasting::testPosYAxis()
 {
+	glm::vec2 s = glm::vec2(1, 1);
+	glm::vec2 e = glm::vec2(1, 4);
 
+
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"110000",
+		"100000",
+		"000000"
+	};
+	TestCase case0(testMap, s, e);
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000000",
+		"110000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"110000",
+		"100000",
+		"100000",
+		"100000",
+		"100000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"110000",
+		"010000",
+		"010000",
+		"010000",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
 }
 
 
 void DDARaycasting::testNegYAxis()
 {
+	glm::vec2 s = glm::vec2(1, 4);
+	glm::vec2 e = glm::vec2(1, 1);
 
+
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"110000",
+		"000000",
+		"000000"
+	};
+	TestCase case0(testMap, s, e);
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000000",
+		"110000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"110000",
+		"100000",
+		"100000",
+		"100000",
+		"100000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"110000",
+		"010000",
+		"010000",
+		"010000",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
 }
 
 void DDARaycasting::testDiagnal_00_11()
 {
-	source = glm::vec2(5, 5);
-	currentRay = constructLine(source, source, 0.05);
-	end = glm::vec2(1, 1);
+	glm::vec2 s = glm::vec2(1, 1);
+	glm::vec2 e = glm::vec2(4, 4);
+	testDiagnal_00_11(s, e);
+
+	s = glm::vec2(1.5, 1.5);
+	e = glm::vec2(4.2, 4.2);
+	testDiagnal_00_11(s, e);
 }
+
+void DDARaycasting::testDiagnal_00_11(glm::vec2 s, glm::vec2 e)
+{
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000000",
+		"010000",
+		"000000"
+	};
+	TestCase case0(testMap, s, e);
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"010000",
+		"001000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"011000",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000001",
+		"000100",
+		"000010",
+		"010100",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000100",
+		"001000",
+		"010000",
+		"001000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+}
+
+
 
 void DDARaycasting::testDiagnal_11_00()
 {
+	glm::vec2 s = glm::vec2(4, 4);
+	glm::vec2 e = glm::vec2(1, 1);
+	testDiagnal_00_11(s, e);
 
+	s = glm::vec2(4.5, 4.5);
+	e = glm::vec2(1.2, 1.2);
+	testDiagnal_00_11(s, e);
 }
+
 
 void DDARaycasting::testDiagnal_10_01()
 {
+	glm::vec2 s = glm::vec2(4, 1);
+	glm::vec2 e = glm::vec2(1, 4);
+	testDiagnal_10_01(s, e);
 
+	s = glm::vec2(4.75, 1.25);
+	e = glm::vec2(1, 5);
+	testDiagnal_10_01(s, e);
+}
+
+void DDARaycasting::testDiagnal_10_01(glm::vec2 s, glm::vec2 e)
+{
+	vector<string> testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000000",
+		"000010",
+		"000000"
+	};
+	TestCase case0(testMap, s, e);
+	testCases.push_back(case0);
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000100",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"000000",
+		"000010",
+		"000100",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"010000",
+		"010000",
+		"000010",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
+
+
+	testMap =
+	{
+		"000000",
+		"000000",
+		"010000",
+		"000010",
+		"000000",
+		"000000"
+	};
+	case0 = TestCase(testMap, s, e);
+	testCases.push_back(case0);
 }
 
 void DDARaycasting::testDiagnal_01_10()
 {
+	glm::vec2 s = glm::vec2(1, 4);
+	glm::vec2 e = glm::vec2(4, 1);
+	testDiagnal_10_01(s, e);
 
+	s = glm::vec2(1, 5); 
+	e = glm::vec2(4.75, 1.25);
+	testDiagnal_10_01(s, e);
 }
 
 
+void DDARaycasting::testDiagnal_01_10(glm::vec2 s, glm::vec2 e)
+{
+
+}
 
 void DDARaycasting::testRegular()
 {

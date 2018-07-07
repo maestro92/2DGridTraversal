@@ -85,6 +85,24 @@ const int TIME_PROFILER_BUFFER = 10;
 const int FPS_PROFILER_BUFFER = 20;
 
 
+struct TestCase
+{
+	TestCase()
+	{
+	};
+
+	TestCase(vector<string> testMapIn, glm::vec2 startIn, glm::vec2 endIn)
+	{
+		testMap = testMapIn;
+		start = startIn;
+		end = endIn;
+	}
+
+	vector<string> testMap;
+	glm::vec2 start;
+	glm::vec2 end;
+};
+
 
 class DDARaycasting
 {
@@ -172,7 +190,7 @@ class DDARaycasting
 		void onMouseBtnHold();
 		void onMouseBtnDown();
 
-
+		WorldObject constructPoint(glm::vec2 p, float width) const;
 		bool hasDrawnSource;
 		bool hasDrawnEnd;
 
@@ -184,6 +202,10 @@ class DDARaycasting
 		WorldObject* currentRay;
 		WorldObject* traversalRay;
 
+		WorldObject sourcePoint;
+		WorldObject endPoint;
+
+		void test(vector<string> testMap, glm::vec2 p0, glm::vec2 p1);
 
 		void renderGUI();
 		void updateCamera();
@@ -195,6 +217,10 @@ class DDARaycasting
 		int latency;					// rount trip latency in milliseconds
 		int curLatencyOption;
 
+		int curTestCase;
+		void nextTestCase();
+		void test(TestCase testCase);
+		vector<TestCase> testCases;
 
 		void testPosXAxis();
 		void testNegXAxis();
@@ -203,9 +229,15 @@ class DDARaycasting
 		void testNegYAxis();
 
 		void testDiagnal_00_11();
+		void testDiagnal_00_11(glm::vec2 s, glm::vec2 e);
+
 		void testDiagnal_11_00();
+
 		void testDiagnal_10_01();
+		void testDiagnal_10_01(glm::vec2 s, glm::vec2 e);
+
 		void testDiagnal_01_10();
+		void testDiagnal_01_10(glm::vec2 s, glm::vec2 e);
 
 		void testRegular();
 

@@ -24,7 +24,11 @@ class Map
 			NUM_TYPES
 		};
 
+		Map();
+
 		void init(int w, int h);
+		void init(vector<string> worldMap);
+
 		void debug();
 		
 		int getWidth();
@@ -32,6 +36,7 @@ class Map
 
 		Cell getCell(glm::vec2 coord);
 		Cell getCell(int x, int y);
+		void setCell(int x, int y, Map::Cell gem);
 
 		void save();
 		void load(char* filename);
