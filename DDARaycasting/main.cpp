@@ -191,12 +191,6 @@ void DDARaycasting::init()
 GLuint tempTexture;
 
 
-
-
-
-
-
-
 void DDARaycasting::debugDrawing()
 {
 	m_gui.removeDebugLabels();
@@ -222,17 +216,6 @@ void DDARaycasting::debugDrawing()
 }
 
 
-
-
-void DDARaycasting::initObjects()
-{
-
-
-}
-
-
-
-
 /*
 The client creates user commands from sampling input devices with the same tick rate that the server is running 
 with. 
@@ -248,32 +231,14 @@ void DDARaycasting::clientFrame(long long dt)
 	render();	
 }
 
-
-
 void DDARaycasting::GetTimeProfilerAverages()
 {
-	
 	long long total = 0;
-
 	for (int i = 0; i < TIME_PROFILER_BUFFER; i++)
 	{
 		total += timeProfiler[i];
 	}
-
 	cout << "average is " << total / TIME_PROFILER_BUFFER << endl;
-	
-	/*
-	uint64 total = 0;
-
-	for (int i = 0; i < TIME_PROFILER_BUFFER; i++)
-	{
-		total += timeProfiler[i];
-	}
-
-	cout << "average is " << total / TIME_PROFILER_BUFFER << endl;
-	*/
-	
-	//	utl::debug()
 }
 
 
@@ -290,16 +255,12 @@ void DDARaycasting::start()
 	
 	while (isRunning)
 	{
-		// cout << "frame" << endl;
 		time0 = SDL_GetTicks();
 
 		newTime = utl::getCurrentTime_ms();
 
 		dt = newTime - oldTime;
-		// cout << "update" << endl;
 		update();
-
-
 
 		clientFrame(dt);
 
@@ -381,10 +342,6 @@ void DDARaycasting::updateCamera()
 // method1: load your sprites, then render them as textured quad.
 // method2: glBufferData Way
 
-
-
-
-
 glm::vec3 DDARaycasting::screenToWorldPoint(glm::vec2 screenPoint)
 {
 	glm::vec4 viewPort = glm::vec4(0, 0, utl::SCREEN_WIDTH, utl::SCREEN_HEIGHT);
@@ -432,8 +389,6 @@ void DDARaycasting::update()
 	{
 		switch (event.type)
 		{
-
-
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
@@ -444,55 +399,23 @@ void DDARaycasting::update()
 					case SDLK_q:
 						m_cameraZoom -= CAMERA_ZOOM_DELTA;
 						updateCamera();
-
-						break;
-
-					case SDLK_v:
-				//		map.findMatches();
-						break;
-
-					case SDLK_t:
-					//	gameBoard.findMatches_BareBears();
-						break;
-
-					case SDLK_y:
 						break;
 
 					case SDLK_n:
 						nextTestCase();
 						break;
 
-
-
 					case SDLK_w:
 						m_cameraZoom -= CAMERA_ZOOM_DELTA;
 						updateCamera();
 						break;
 
-					case SDLK_e:
-						/*
-						if (startedCurrentLine)
-						{
-							onMouseBtnHold();
-						}
-						*/
-
-						break;
-					case SDLK_x:
-						break;
 					case SDLK_z:
-						utl::debug("In here");
 						inDrawingMode = !inDrawingMode;
-
 						if (inDrawingMode)
 						{
 							resetDrawingMode();
 						}
-						else
-						{
-
-						}
-
 						m_gui.setDrawingModeFlag(inDrawingMode);
 						break;
 
@@ -533,7 +456,6 @@ void DDARaycasting::update()
 						updateCamera();
 						break;
 				}
-
 				break;
 
 			case SDL_MOUSEBUTTONUP:
@@ -543,21 +465,15 @@ void DDARaycasting::update()
 						onMouseBtnUp();
 						break;
 				}
-
-
-
 				break;
 		}
 	}
-
-
 
 	if (inDrawingMode && hasDrawnSource && hasDrawnEnd == false)
 	{
 		onMouseBtnHold();
 	}
 }
-
 
 
 void DDARaycasting::resetDrawingMode()
@@ -569,9 +485,6 @@ void DDARaycasting::resetDrawingMode()
 	sourcePoint.resetModel();
 	endPoint.resetModel();
 }
-
-
-
 
 
 void DDARaycasting::onMouseBtnUp()
@@ -709,16 +622,11 @@ WorldObject* DDARaycasting::constructLine(glm::vec2 p0, glm::vec2 p1, float widt
 
 
 
-
-
 /*
 fixing the first and end point,
 
 combine points that can do a line fit
-
 */
-
-
 void DDARaycasting::render()
 {
 	// *******************************************************
@@ -831,13 +739,6 @@ long long DDARaycasting::getCurrentTimeMillis()
 
 #define MAX_CLIENTS 10
 #define SERVER_PORT 60000
-
-
-
-
-
-
-
 
 
 int main(int argc, char *argv[])
