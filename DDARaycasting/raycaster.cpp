@@ -44,6 +44,7 @@ void Raycaster::init(glm::vec2 sourceIn, glm::vec2 dirIn, glm::vec2 endIn)
 	}
 
 	curGridCoord = glm::vec2(static_cast<int>(source.x), static_cast<int>(source.y));
+	intersectionCellSideNormal = glm::vec2(0, 0);
 
 	// calculate step and initail rayLength parameters
 	if (dir.x < 0)
@@ -218,15 +219,29 @@ void Raycaster::traverse_Regular()
 	{
 		if (rayLengthToSideX < rayLengthToSideY)
 		{
-			rayLengthToSideX += dx;
 			curGridCoord.x += stepX;
-			side = NORTH_SOUTH;
+			if (stepX == 1)
+			{
+				intersectionCellSideNormal = glm::vec2(-1, 0);
+			}
+			else
+			{
+				intersectionCellSideNormal = glm::vec2(1, 0);
+			}
+			rayLengthToSideX += dx;
 		}
 		else
 		{
-			rayLengthToSideY += dy;
 			curGridCoord.y += stepY;
-			side = EAST_WEST;
+			if (stepY == 1)
+			{
+				intersectionCellSideNormal = glm::vec2(0, -1);
+			}
+			else
+			{
+				intersectionCellSideNormal = glm::vec2(1, 0);
+			}
+			rayLengthToSideY += dy;
 		}
 
 		traversal.push_back(curGridCoord);

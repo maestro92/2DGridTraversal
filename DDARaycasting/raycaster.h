@@ -92,7 +92,7 @@ we let the ray through in the following two cases
 	// did we hit a North or South wall (hit a wall along x axis)
 	// or did we hit a East or West wall (hit a wall along y axis)
 	CellSide side;
-
+	glm::vec2 intersectionCellSideNormal;
 	Raycaster();
 	Raycaster(glm::vec2 sourceIn, glm::vec2 dirIn, glm::vec2 endIn, Map* mapIn);
 	void init(glm::vec2 sourceIn, glm::vec2 dirIn, glm::vec2 endIn);
