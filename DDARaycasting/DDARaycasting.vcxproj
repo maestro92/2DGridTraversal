@@ -111,8 +111,8 @@
     <ClCompile Include="model\builtin_model\xyz_axis_model.cpp" />
     <ClCompile Include="model\model.cpp" />
     <ClCompile Include="model\model_manager.cpp" />
-    <ClCompile Include="model\raycaster.cpp" />
     <ClCompile Include="pipeline.cpp" />
+    <ClCompile Include="raycaster.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\renderer_manager.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -162,10 +162,10 @@
     <ClInclude Include="model\model_constant.h" />
     <ClInclude Include="model\model_enum.h" />
     <ClInclude Include="model\model_manager.h" />
-    <ClInclude Include="model\raycaster.h" />
     <ClInclude Include="model\texture.h" />
     <ClInclude Include="model\vertex_data.h" />
     <ClInclude Include="protocol\connection.h" />
+    <ClInclude Include="raycaster.h" />
     <ClInclude Include="renderer\renderer_constants.h" />
     <ClInclude Include="utility\utility_debug.h" />
     <ClInclude Include="utility\utility_gl.h" />

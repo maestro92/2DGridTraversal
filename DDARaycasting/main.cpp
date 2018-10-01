@@ -181,7 +181,7 @@ void DDARaycasting::init()
 		else
 		{
 			map.saveLatest = true;
-			map.init(10, 12);
+			map.init(60, 60);
 			mapView.init(&map);
 			debugDrawing();
 		}
